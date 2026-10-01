@@ -24,6 +24,12 @@ class EmployeesController < ApplicationController
     render json: employee.as_json(only: EMPLOYEE_FIELDS), status: :created
   end
 
+  def update
+    employee = Employee.find(params[:id])
+    employee.update!(employee_params)
+    render json: employee.as_json(only: EMPLOYEE_FIELDS)
+  end
+
   private
 
   def employee_params

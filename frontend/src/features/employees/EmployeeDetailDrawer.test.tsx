@@ -98,7 +98,7 @@ describe("employee detail drawer", () => {
       expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
     })
 
-    const fetchMock = vi.mocked(global.fetch)
+    const fetchMock = vi.mocked(globalThis.fetch)
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/employees/42")
   })
 })

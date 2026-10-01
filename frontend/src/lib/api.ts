@@ -65,3 +65,22 @@ export async function createEmployee(payload: EmployeeFormValues): Promise<Emplo
 
   return response.json() as Promise<Employee>
 }
+
+export async function updateEmployee(id: string | number, payload: Partial<EmployeeFormValues>): Promise<Employee> {
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ employee: payload }),
+  })
+
+  if (response.status === 422) {
+    const body = await response.json()
+    throw new EmployeeValidationError(body.error?.details ?? {})
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to update employee (status ${response.status})`)
+  }
+
+  return response.json() as Promise<Employee>
+}

@@ -79,4 +79,43 @@ describe("employee create/edit form", () => {
       expect(screen.getByText("has already been taken")).toBeInTheDocument()
     })
   })
+
+  it("renders in edit mode with defaultValues pre-filled and button labeled 'Save changes'", async () => {
+    const onSubmit = vi.fn()
+    const defaultValues = {
+      first_name: "Aretha",
+      last_name: "Franklin",
+      email: "aretha.franklin@acme.example",
+      job_title: "Product Manager",
+      department: "Product",
+      country: "USA",
+      hire_date: "2021-03-15",
+      salary_amount: "120000",
+      salary_currency: "USD",
+    }
+    render(<EmployeeForm mode="edit" defaultValues={defaultValues} onSubmit={onSubmit} />)
+
+    expect(screen.getByLabelText("First name")).toHaveValue("Aretha")
+    expect(screen.getByLabelText("Last name")).toHaveValue("Franklin")
+    expect(screen.getByLabelText("Email")).toHaveValue("aretha.franklin@acme.example")
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText("Salary amount"), { target: { value: "130000" } })
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }))
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalled()
+    })
+    expect(onSubmit.mock.calls[0][0]).toEqual({
+      first_name: "Aretha",
+      last_name: "Franklin",
+      email: "aretha.franklin@acme.example",
+      job_title: "Product Manager",
+      department: "Product",
+      country: "USA",
+      hire_date: "2021-03-15",
+      salary_amount: 130000,
+      salary_currency: "USD",
+    })
+  })
 })
