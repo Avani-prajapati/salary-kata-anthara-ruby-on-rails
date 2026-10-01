@@ -84,3 +84,14 @@ export async function updateEmployee(id: string | number, payload: Partial<Emplo
 
   return response.json() as Promise<Employee>
 }
+
+export async function deleteEmployee(id: string | number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete employee (status ${response.status})`)
+  }
+}

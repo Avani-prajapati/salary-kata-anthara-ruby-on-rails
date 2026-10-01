@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
 import { EmployeeDetailDrawer } from "./EmployeeDetailDrawer"
 import type { Employee } from "./types"
 
@@ -100,5 +100,108 @@ describe("employee detail drawer", () => {
 
     const fetchMock = vi.mocked(globalThis.fetch)
     expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/employees/42")
+  })
+
+  it("shows a Remove button in the read-only view", async () => {
+    renderDrawer(1)
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+    })
+
+    expect(screen.getByRole("button", { name: "Remove" })).toBeInTheDocument()
+  })
+
+  it("opens the delete confirmation dialog when Remove is clicked", async () => {
+    renderDrawer(1)
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+    })
+
+    const removeButton = screen.getAllByRole("button", { name: "Remove" })[0]
+    fireEvent.click(removeButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument()
+    })
+    expect(screen.getByText(/Are you sure you want to remove Ada Lovelace/)).toBeInTheDocument()
+  })
+
+  it("does not issue a delete request when the delete dialog is cancelled", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockEmployee,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 204,
+        })
+    )
+
+    renderDrawer(1)
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+    })
+
+    const removeButton = screen.getAllByRole("button", { name: "Remove" })[0]
+    fireEvent.click(removeButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument()
+    })
+
+    const cancelButton = screen.getByRole("button", { name: "Cancel" })
+    fireEvent.click(cancelButton)
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument()
+    })
+
+    const fetchMock = vi.mocked(globalThis.fetch)
+    const deleteCall = fetchMock.mock.calls.find(
+      call => call[0] === "http://localhost:3000/api/employees/1" && call[1]?.method === "DELETE"
+    )
+    expect(deleteCall).toBeUndefined()
+  })
+
+  it("issues a DELETE request when the delete dialog is confirmed", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockEmployee,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 204,
+      })
+    vi.stubGlobal("fetch", fetchMock)
+
+    renderDrawer(1)
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+    })
+
+    const removeButton = screen.getAllByRole("button", { name: "Remove" })[0]
+    fireEvent.click(removeButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument()
+    })
+
+    const confirmButton = screen.getByRole("button", { name: "Remove" })
+    fireEvent.click(confirmButton)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith("http://localhost:3000/api/employees/1", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      })
+    })
   })
 })

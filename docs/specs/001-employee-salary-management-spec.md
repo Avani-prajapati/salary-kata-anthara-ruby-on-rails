@@ -150,10 +150,10 @@ From the detail drawer, the HR Manager removes an employee record after confirmi
 
 **Acceptance criteria**
 
-- [ ] **5.6.1** `DELETE /api/employees/:id` removes the record and returns `204`.
-- [ ] **5.6.2** The UI requires an explicit confirmation step before issuing the delete request.
-- [ ] **5.6.3** Removing a non-existent `id` returns `404`.
-- [ ] **5.6.4** After removal, the employee no longer appears in [5.1](#51-browse-the-paginated-employee-directory)'s directory, and is excluded from any pay aggregate computed afterward.
+- [x] **5.6.1** `DELETE /api/employees/:id` removes the record and returns `204`.
+- [x] **5.6.2** The UI requires an explicit confirmation step before issuing the delete request.
+- [x] **5.6.3** Removing a non-existent `id` returns `404`.
+- [x] **5.6.4** After removal, the employee no longer appears in [5.1](#51-browse-the-paginated-employee-directory)'s directory, and is excluded from any pay aggregate computed afterward.
 
 ### 5.7 View org-wide pay insights
 

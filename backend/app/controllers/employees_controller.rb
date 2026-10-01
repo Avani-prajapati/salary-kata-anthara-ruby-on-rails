@@ -30,6 +30,12 @@ class EmployeesController < ApplicationController
     render json: employee.as_json(only: EMPLOYEE_FIELDS)
   end
 
+  def destroy
+    employee = Employee.find(params[:id])
+    employee.destroy!
+    head :no_content
+  end
+
   private
 
   def employee_params
