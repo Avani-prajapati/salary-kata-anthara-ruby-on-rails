@@ -9,6 +9,6 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   scope "api", as: "api" do
-    resources :employees, only: [ :index ]
+    resources :employees, only: [ :index, :show ]
   end
 end

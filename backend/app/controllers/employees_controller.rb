@@ -14,6 +14,11 @@ class EmployeesController < ApplicationController
     }
   end
 
+  def show
+    employee = Employee.find(params[:id])
+    render json: employee.as_json(only: EMPLOYEE_FIELDS)
+  end
+
   private
 
   def filtered_employees

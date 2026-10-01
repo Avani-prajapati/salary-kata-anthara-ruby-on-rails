@@ -51,9 +51,10 @@ interface EmployeeTableProps {
   sorting: SortingState
   onSortingChange: OnChangeFn<SortingState>
   isLoading: boolean
+  onRowClick?: (employeeId: number) => void
 }
 
-export function EmployeeTable({ data, sorting, onSortingChange, isLoading }: EmployeeTableProps) {
+export function EmployeeTable({ data, sorting, onSortingChange, isLoading, onRowClick }: EmployeeTableProps) {
   const table = useTable({
     features,
     columns,
@@ -96,7 +97,23 @@ export function EmployeeTable({ data, sorting, onSortingChange, isLoading }: Emp
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
+          <TableRow
+            key={row.id}
+            onClick={() => onRowClick?.(row.original.id)}
+            className={onRowClick ? "cursor-pointer hover:bg-muted" : ""}
+            role={onRowClick ? "button" : undefined}
+            tabIndex={onRowClick ? 0 : undefined}
+            onKeyDown={
+              onRowClick
+                ? (e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      onRowClick(row.original.id)
+                    }
+                  }
+                : undefined
+            }
+          >
             {row.getAllCells().map((cell) => (
               <TableCell key={cell.id}>
                 <table.FlexRender cell={cell} />

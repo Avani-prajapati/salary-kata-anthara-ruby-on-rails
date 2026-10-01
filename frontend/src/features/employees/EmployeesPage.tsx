@@ -4,6 +4,7 @@ import type { SortingState } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { fetchEmployees } from "@/lib/api"
 import { EmployeeTable } from "./EmployeeTable"
+import { EmployeeDetailDrawer } from "./EmployeeDetailDrawer"
 import { FilterBar } from "./FilterBar"
 import { usePagination } from "./usePagination"
 import type { Employee, EmployeeFilters, EmployeeSortColumn } from "./types"
@@ -16,6 +17,7 @@ export function EmployeesPage() {
   const { page, perPage, setPage } = usePagination()
   const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
   const [filters, setFilters] = useState<EmployeeFilters>(DEFAULT_FILTERS)
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null)
   const activeSort = sorting[0]
 
   function handleFilterChange(nextFilters: EmployeeFilters) {
@@ -47,6 +49,7 @@ export function EmployeesPage() {
         sorting={sorting}
         onSortingChange={setSorting}
         isLoading={employeesQuery.isPending}
+        onRowClick={setSelectedEmployeeId}
       />
       {pagination && (
         <nav aria-label="Employee directory pagination">
@@ -66,6 +69,7 @@ export function EmployeesPage() {
           </Button>
         </nav>
       )}
+      <EmployeeDetailDrawer employeeId={selectedEmployeeId} onClose={() => setSelectedEmployeeId(null)} />
     </section>
   )
 }

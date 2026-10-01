@@ -1,4 +1,4 @@
-import type { EmployeeListParams, EmployeeListResponse } from "@/features/employees/types"
+import type { EmployeeListParams, EmployeeListResponse, Employee } from "@/features/employees/types"
 
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000"
@@ -24,4 +24,14 @@ export async function fetchEmployees(params: EmployeeListParams = {}): Promise<E
   }
 
   return response.json() as Promise<EmployeeListResponse>
+}
+
+export async function fetchEmployee(id: string | number): Promise<Employee> {
+  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`)
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch employee (status ${response.status})`)
+  }
+
+  return response.json() as Promise<Employee>
 }

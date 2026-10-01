@@ -113,9 +113,9 @@ Clicking a row in the directory opens a side-panel drawer showing that employee'
 
 **Acceptance criteria**
 
-- [ ] **5.3.1** `GET /api/employees/:id` returns the full employee record.
-- [ ] **5.3.2** Clicking a table row opens the detail drawer in place, without navigating away from or resetting the Employees tab's table/filter state.
-- [ ] **5.3.3** Requesting a non-existent `id` returns `404` with a structured JSON error body (`rescue_from ActiveRecord::RecordNotFound`).
+- [x] **5.3.1** `GET /api/employees/:id` returns the full employee record.
+- [x] **5.3.2** Clicking a table row opens the detail drawer in place, without navigating away from or resetting the Employees tab's table/filter state.
+- [x] **5.3.3** Requesting a non-existent `id` returns `404` with a structured JSON error body (`rescue_from ActiveRecord::RecordNotFound`).
 
 ### 5.4 Add a new employee
 
