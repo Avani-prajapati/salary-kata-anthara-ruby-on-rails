@@ -86,11 +86,11 @@ The HR Manager opens the app and lands on the **Employees** tab, which shows a s
 
 **Acceptance criteria**
 
-- [ ] **5.1.1** `GET /api/employees` returns a JSON page (`id, first_name, last_name, job_title, department, country, salary_amount, salary_currency, hire_date`) plus a pagination envelope (`page, per_page, total_count, total_pages`), accepting `page` and `per_page` query params.
-- [ ] **5.1.2** The Employees tab renders the returned page as a table with sortable columns (name, department, country, salary, hire date) and next/prev/page-number controls.
-- [ ] **5.1.3** A `per_page` above the server-enforced cap is clamped to the cap rather than erroring or being honored as-is (ties [4.4](#4-invariants); Rails Backend Standards — paginate every index endpoint).
-- [ ] **5.1.4** With the database seeded via `bin/rails db:seed` (10,000 employees), loading any page issues a bounded, constant number of queries regardless of page content (asserted by a request test with `strict_loading` enabled in the test environment) — no N+1 pattern.
-- [ ] **5.1.5** Requesting a page beyond `total_pages` returns `200` with an empty array, not an error.
+- [x] **5.1.1** `GET /api/employees` returns a JSON page (`id, first_name, last_name, job_title, department, country, salary_amount, salary_currency, hire_date`) plus a pagination envelope (`page, per_page, total_count, total_pages`), accepting `page` and `per_page` query params.
+- [x] **5.1.2** The Employees tab renders the returned page as a table with sortable columns (name, department, country, salary, hire date) and next/prev/page-number controls.
+- [x] **5.1.3** A `per_page` above the server-enforced cap is clamped to the cap rather than erroring or being honored as-is (ties [4.4](#4-invariants); Rails Backend Standards — paginate every index endpoint).
+- [x] **5.1.4** With the database seeded via `bin/rails db:seed` (10,000 employees), loading any page issues a bounded, constant number of queries regardless of page content (asserted by a request test with `strict_loading` enabled in the test environment) — no N+1 pattern.
+- [x] **5.1.5** Requesting a page beyond `total_pages` returns `200` with an empty array, not an error.
 
 ### 5.2 Filter and search the employee directory
 

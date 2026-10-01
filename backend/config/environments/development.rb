@@ -47,6 +47,10 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
+  # Guard against N+1 queries: lazily loading an association raises instead of
+  # silently issuing an extra query.
+  config.active_record.strict_loading_by_default = true
+
   # Append comments with runtime information tags to SQL queries in logs.
   config.active_record.query_log_tags_enabled = true
 

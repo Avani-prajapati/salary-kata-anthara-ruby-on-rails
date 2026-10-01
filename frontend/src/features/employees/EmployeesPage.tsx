@@ -1,0 +1,61 @@
+import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import type { SortingState } from "@tanstack/react-table"
+import { Button } from "@/components/ui/button"
+import { fetchEmployees } from "@/lib/api"
+import { EmployeeTable } from "./EmployeeTable"
+import { usePagination } from "./usePagination"
+import type { Employee, EmployeeSortColumn } from "./types"
+
+const EMPTY_EMPLOYEES: Employee[] = []
+const DEFAULT_SORTING: SortingState = [{ id: "last_name", desc: false }]
+
+export function EmployeesPage() {
+  const { page, perPage, setPage } = usePagination()
+  const [sorting, setSorting] = useState<SortingState>(DEFAULT_SORTING)
+  const activeSort = sorting[0]
+
+  const employeesQuery = useQuery({
+    queryKey: ["employees", page, perPage, activeSort],
+    queryFn: () =>
+      fetchEmployees({
+        page,
+        perPage,
+        sort: activeSort?.id as EmployeeSortColumn | undefined,
+        direction: activeSort?.desc ? "desc" : "asc",
+      }),
+  })
+
+  const employees = employeesQuery.data?.employees ?? EMPTY_EMPLOYEES
+  const pagination = employeesQuery.data?.pagination
+
+  return (
+    <section>
+      <h1>Employees</h1>
+      <EmployeeTable
+        data={employees}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        isLoading={employeesQuery.isPending}
+      />
+      {pagination && (
+        <nav aria-label="Employee directory pagination">
+          <Button type="button" variant="outline" onClick={() => setPage(page - 1)} disabled={page <= 1}>
+            Previous
+          </Button>
+          <span>
+            Page {pagination.page} of {pagination.total_pages}
+          </span>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setPage(page + 1)}
+            disabled={page >= pagination.total_pages}
+          >
+            Next
+          </Button>
+        </nav>
+      )}
+    </section>
+  )
+}

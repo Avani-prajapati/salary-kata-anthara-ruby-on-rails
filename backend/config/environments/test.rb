@@ -50,4 +50,8 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Guard against N+1 queries: lazily loading an association raises instead of
+  # silently issuing an extra query.
+  config.active_record.strict_loading_by_default = true
 end
