@@ -34,6 +34,7 @@
 | 3 | Org Memory (`mcp__plugin_anthara_anthara-fabric__search_memories`: "salary-kata employee salary management Rails architecture design decisions") | Fabric | 2026-10-01 | Returned no prior facts — confirms there is no earlier Anthara decision to inherit for this repo; this spec starts the record. |
 | 4 | Codebase (this repo) | n/a | 2026-10-01 | Greenfield at session start: only `kata.md` present, no app code, no `docs/specs/`, no `README.md`/`CLAUDE.md`. |
 | 5 | Live spec-writing session with Avani Prajapati | Avani Prajapati | 2026-10-01 | In-session decisions: analytics scope, currency model, auth scope, component library, Rails API mode, pagination model, real-time need, client state strategy, feature layout, and architectural style — each captured via `AskUserQuestion` with a recommended default accepted in every case. |
+| 6 | `ARCHITECTURE.md` (repo root) | n/a | 2026-10-01 | §7 of this spec extracted into the project-wide architecture reference; future specs inherit it directly. |
 
 ## 3. Type ontology
 
