@@ -75,7 +75,135 @@ class EmployeesIndexTest < ActionDispatch::IntegrationTest
     assert_empty body["employees"]
   end
 
+  test "filters employees by country" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { country: "DEU" }
+
+    assert_response :success
+    assert_equal [ "DEU" ], employees_in(response).map { |employee| employee["country"] }.uniq
+  end
+
+  test "filters employees by department" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { department: "Legal" }
+
+    assert_response :success
+    assert_equal [ "Legal" ], employees_in(response).map { |employee| employee["department"] }.uniq
+  end
+
+  test "filters employees by job title" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { job_title: Employee::JOB_TITLES[3] }
+
+    assert_response :success
+    assert_equal [ Employee::JOB_TITLES[3] ], employees_in(response).map { |employee| employee["job_title"] }.uniq
+  end
+
+  test "filters employees by a minimum salary" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { min_salary: 100_000 }
+
+    assert_response :success
+    salaries = employees_in(response).map { |employee| employee["salary_amount"].to_f }
+    assert_operator salaries.min, :>=, 100_000
+    assert_includes salaries, 180_000.0
+  end
+
+  test "filters employees by a maximum salary" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { max_salary: 50_000 }
+
+    assert_response :success
+    salaries = employees_in(response).map { |employee| employee["salary_amount"].to_f }
+    assert_operator salaries.max, :<=, 50_000
+    assert_includes salaries, 40_000.0
+  end
+
+  test "searches employees by name or email" do
+    seed_filterable_employees
+    target = Employee.find_by!(department: "Legal")
+
+    get api_employees_path, params: { q: target.last_name }
+
+    assert_response :success
+    assert_includes employees_in(response).map { |employee| employee["id"] }, target.id
+  end
+
+  test "combines multiple filters narrowing the result to the intersection" do
+    seed_filterable_employees
+
+    get api_employees_path, params: { country: "BRA", department: "Finance", min_salary: 70_000, max_salary: 80_000 }
+
+    assert_response :success
+    results = employees_in(response)
+
+    assert_equal 1, results.size
+    assert_equal "BRA", results.first["country"]
+  end
+
+  test "treats a SQL-injection attempt in a filter value as a literal, not executable, value" do
+    seed_filterable_employees
+    employee_count_before_request = Employee.count
+
+    get api_employees_path, params: { q: "'; DROP TABLE employees; --" }
+
+    assert_response :success
+    assert_empty employees_in(response)
+    assert_equal employee_count_before_request, Employee.count
+  end
+
+  test "returns 400 with a structured error body for a non-numeric min_salary" do
+    get api_employees_path, params: { min_salary: "not-a-number" }
+
+    assert_response :bad_request
+    body = JSON.parse(response.body)
+
+    assert_equal "bad_request", body.dig("error", "code")
+  end
+
+  test "returns 400 with a structured error body for a non-numeric max_salary" do
+    get api_employees_path, params: { max_salary: "also-not-a-number" }
+
+    assert_response :bad_request
+    body = JSON.parse(response.body)
+
+    assert_equal "bad_request", body.dig("error", "code")
+  end
+
+  test "clearing all filters reproduces the unfiltered directory's response shape" do
+    seed_filterable_employees
+
+    get api_employees_path
+
+    assert_response :success
+    body = JSON.parse(response.body)
+
+    expected_fields = %w[id first_name last_name job_title department country salary_amount salary_currency hire_date]
+    assert_equal expected_fields.sort, body["employees"].first.keys.sort
+    assert_equal %w[page per_page total_count total_pages].sort, body["pagination"].keys.sort
+    assert_equal Employee.count, body["pagination"]["total_count"]
+  end
+
   private
+
+  def employees_in(response)
+    JSON.parse(response.body)["employees"]
+  end
+
+  def seed_filterable_employees
+    [
+      { department: "Sales", country: "DEU", job_title: Employee::JOB_TITLES[1], salary_amount: 40_000 },
+      { department: "Legal", country: "JPN", job_title: Employee::JOB_TITLES[2], salary_amount: 180_000 },
+      { department: "Finance", country: "BRA", job_title: Employee::JOB_TITLES[3], salary_amount: 75_000 }
+    ].each_with_index do |overrides, index|
+      Employee.create!(employee_attributes(200 + index).merge(overrides))
+    end
+  end
 
   def seed_additional_employees(count)
     count.times { |index| Employee.create!(employee_attributes(index)) }

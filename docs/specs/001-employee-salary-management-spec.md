@@ -100,10 +100,10 @@ From the Employees tab, the HR Manager narrows the table using a filter/search b
 
 **Acceptance criteria**
 
-- [ ] **5.2.1** `GET /api/employees` accepts `country`, `department`, `job_title`, `min_salary`, `max_salary`, and `q` (name/email search) query params, combinable, applied through indexed hash-condition queries.
-- [ ] **5.2.2** No filter value is ever interpolated directly into a raw SQL string; all conditions use hash conditions or bind placeholders (Rails Backend Standards — SQL injection countermeasure).
-- [ ] **5.2.3** Clearing all filters returns the full paginated directory from [5.1](#51-browse-the-paginated-employee-directory).
-- [ ] **5.2.4** An invalid filter value (e.g. non-numeric `min_salary`) returns `400` with a structured JSON error body, not a `500`.
+- [x] **5.2.1** `GET /api/employees` accepts `country`, `department`, `job_title`, `min_salary`, `max_salary`, and `q` (name/email search) query params, combinable, applied through indexed hash-condition queries.
+- [x] **5.2.2** No filter value is ever interpolated directly into a raw SQL string; all conditions use hash conditions or bind placeholders (Rails Backend Standards — SQL injection countermeasure).
+- [x] **5.2.3** Clearing all filters returns the full paginated directory from [5.1](#51-browse-the-paginated-employee-directory).
+- [x] **5.2.4** An invalid filter value (e.g. non-numeric `min_salary`) returns `400` with a structured JSON error body, not a `500`.
 
 ### 5.3 View an employee's full record
 

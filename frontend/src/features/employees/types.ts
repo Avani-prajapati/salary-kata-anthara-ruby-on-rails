@@ -21,7 +21,16 @@ export interface PaginationEnvelope {
   total_pages: number
 }
 
-export interface EmployeeListParams {
+export interface EmployeeFilters {
+  country?: string
+  department?: string
+  jobTitle?: string
+  minSalary?: string
+  maxSalary?: string
+  q?: string
+}
+
+export interface EmployeeListParams extends EmployeeFilters {
   page?: number
   perPage?: number
   sort?: EmployeeSortColumn

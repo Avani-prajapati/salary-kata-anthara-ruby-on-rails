@@ -55,4 +55,13 @@ class Employee < ApplicationRecord
 
     order(safe_column => safe_direction)
   }
+
+  scope :by_country, ->(country) { where(country: country) }
+  scope :by_department, ->(department) { where(department: department) }
+  scope :by_job_title, ->(job_title) { where(job_title: job_title) }
+  scope :salary_between, ->(min, max) { where(salary_amount: min..max) }
+  scope :search_by_name_or_email, ->(term) {
+    pattern = "%#{sanitize_sql_like(term)}%"
+    where("first_name LIKE :pattern OR last_name LIKE :pattern OR email LIKE :pattern", pattern: pattern)
+  }
 end

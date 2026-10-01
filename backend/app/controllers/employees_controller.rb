@@ -5,17 +5,46 @@ class EmployeesController < ApplicationController
   ].freeze
 
   def index
-    employees = Employee
-      .order_by_sort(sort_params[:sort], sort_params[:direction])
-      .paginated(page: pagination_params[:page], per_page: pagination_params[:per_page])
+    matching_employees = filtered_employees.order_by_sort(sort_params[:sort], sort_params[:direction])
+    employees = matching_employees.paginated(page: pagination_params[:page], per_page: pagination_params[:per_page])
 
     render json: {
       employees: employees.as_json(only: EMPLOYEE_FIELDS),
-      pagination: pagination_envelope(employees)
+      pagination: pagination_envelope(employees, matching_employees)
     }
   end
 
   private
+
+  def filtered_employees
+    scope = Employee.all
+    scope = scope.by_country(filter_params[:country]) if filter_params[:country]
+    scope = scope.by_department(filter_params[:department]) if filter_params[:department]
+    scope = scope.by_job_title(filter_params[:job_title]) if filter_params[:job_title]
+    scope = scope.salary_between(filter_params[:min_salary], filter_params[:max_salary]) if filter_params[:min_salary] || filter_params[:max_salary]
+    scope = scope.search_by_name_or_email(filter_params[:q]) if filter_params[:q]
+    scope
+  end
+
+  def filter_params
+    @filter_params ||= {
+      country: params[:country].presence,
+      department: params[:department].presence,
+      job_title: params[:job_title].presence,
+      min_salary: parsed_salary_bound(:min_salary),
+      max_salary: parsed_salary_bound(:max_salary),
+      q: params[:q].presence
+    }
+  end
+
+  def parsed_salary_bound(param_name)
+    raw_value = params[param_name].presence
+    return nil unless raw_value
+
+    Float(raw_value)
+  rescue ArgumentError, TypeError
+    raise InvalidFilterError, "#{param_name} must be a number"
+  end
 
   def pagination_params
     {
@@ -31,10 +60,10 @@ class EmployeesController < ApplicationController
     }
   end
 
-  def pagination_envelope(employees)
+  def pagination_envelope(employees, matching_employees)
     per_page = employees.limit_value
     page = (employees.offset_value / per_page) + 1
-    total_count = Employee.count
+    total_count = matching_employees.count
 
     {
       page: page,
