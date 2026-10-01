@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { EmployeeForm } from "./EmployeeForm"
 
@@ -15,7 +15,7 @@ function fillValidForm() {
 }
 
 describe("employee create/edit form", () => {
-  it("calls onSubmit with the parsed values once every field is valid", async () => {
+  it("a fully valid form submits the employee's details", async () => {
     const onSubmit = vi.fn()
     render(<EmployeeForm mode="create" onSubmit={onSubmit} />)
 
@@ -49,6 +49,34 @@ describe("employee create/edit form", () => {
     await waitFor(() => {
       expect(screen.getByText("Salary must be zero or greater")).toBeInTheDocument()
     })
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it("marks every field as required for assistive technology", () => {
+    render(<EmployeeForm mode="create" onSubmit={vi.fn()} />)
+
+    expect(screen.getByLabelText("First name")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Last name")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Email")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Job title")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Department")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Country")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Hire date")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Salary amount")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Salary currency")).toHaveAttribute("aria-required", "true")
+  })
+
+  it("summarizes every invalid field in one place after a failed submit", async () => {
+    const onSubmit = vi.fn()
+    render(<EmployeeForm mode="create" onSubmit={onSubmit} />)
+
+    fireEvent.click(screen.getByRole("button", { name: "Add employee" }))
+
+    const summary = await screen.findByRole("alert")
+
+    expect(within(summary).getByText(/First name: First name is required/)).toBeInTheDocument()
+    expect(within(summary).getByText(/Last name: Last name is required/)).toBeInTheDocument()
+    expect(within(summary).getByText(/Email: Email is required/)).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
 

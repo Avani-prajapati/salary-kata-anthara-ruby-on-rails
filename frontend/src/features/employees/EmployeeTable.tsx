@@ -81,7 +81,11 @@ export function EmployeeTable({ data, sorting, onSortingChange, isLoading, onRow
               const sortDirection = header.column.getCanSort() ? header.column.getIsSorted() : false
 
               return (
-                <TableHead key={header.id} aria-sort={header.column.getCanSort() ? ariaSortFor(sortDirection) : undefined}>
+                <TableHead
+                  key={header.id}
+                  scope="col"
+                  aria-sort={header.column.getCanSort() ? ariaSortFor(sortDirection) : undefined}
+                >
                   {header.isPlaceholder ? null : header.column.getCanSort() ? (
                     <button type="button" onClick={header.column.getToggleSortingHandler()}>
                       <table.FlexRender header={header} /> <SortIndicator direction={sortDirection} />
@@ -97,25 +101,20 @@ export function EmployeeTable({ data, sorting, onSortingChange, isLoading, onRow
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows.map((row) => (
-          <TableRow
-            key={row.id}
-            onClick={() => onRowClick?.(row.original.id)}
-            className={onRowClick ? "cursor-pointer hover:bg-muted" : ""}
-            role={onRowClick ? "button" : undefined}
-            tabIndex={onRowClick ? 0 : undefined}
-            onKeyDown={
-              onRowClick
-                ? (e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      onRowClick(row.original.id)
-                    }
-                  }
-                : undefined
-            }
-          >
-            {row.getAllCells().map((cell) => (
+          <TableRow key={row.id} className={onRowClick ? "relative cursor-pointer hover:bg-muted" : ""}>
+            {row.getAllCells().map((cell, index) => (
               <TableCell key={cell.id}>
+                {index === 0 && onRowClick ? (
+                  <button
+                    type="button"
+                    className="absolute inset-0 z-10 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+                    onClick={() => onRowClick(row.original.id)}
+                  >
+                    <span className="sr-only">
+                      View details for {row.original.first_name} {row.original.last_name}
+                    </span>
+                  </button>
+                ) : null}
                 <table.FlexRender cell={cell} />
               </TableCell>
             ))}

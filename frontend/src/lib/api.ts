@@ -5,6 +5,36 @@ import type { PaySummary, PaySummaryGroupBy } from "@/features/insights/types"
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000"
 
+export class EmployeeValidationError extends Error {
+  fieldErrors: Record<string, string[]>
+
+  constructor(fieldErrors: Record<string, string[]>) {
+    super("Employee validation failed")
+    this.name = "EmployeeValidationError"
+    this.fieldErrors = fieldErrors
+  }
+}
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = `${API_BASE_URL}${path}`
+  const response = init ? await fetch(url, init) : await fetch(url)
+
+  if (response.status === 422) {
+    const body = await response.json()
+    throw new EmployeeValidationError(body.error?.details ?? {})
+  }
+
+  if (!response.ok) {
+    throw new Error(`Request to ${path} failed (status ${response.status})`)
+  }
+
+  if (response.status === 204) {
+    return undefined as T
+  }
+
+  return response.json() as Promise<T>
+}
+
 export async function fetchEmployees(params: EmployeeListParams = {}): Promise<EmployeeListResponse> {
   const query = new URLSearchParams()
 
@@ -19,91 +49,37 @@ export async function fetchEmployees(params: EmployeeListParams = {}): Promise<E
   if (params.maxSalary !== undefined) query.set("max_salary", params.maxSalary)
   if (params.q !== undefined) query.set("q", params.q)
 
-  const response = await fetch(`${API_BASE_URL}/api/employees?${query.toString()}`)
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch employees (status ${response.status})`)
-  }
-
-  return response.json() as Promise<EmployeeListResponse>
+  return request<EmployeeListResponse>(`/api/employees?${query.toString()}`)
 }
 
 export async function fetchEmployee(id: string | number): Promise<Employee> {
-  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`)
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch employee (status ${response.status})`)
-  }
-
-  return response.json() as Promise<Employee>
-}
-
-export class EmployeeValidationError extends Error {
-  fieldErrors: Record<string, string[]>
-
-  constructor(fieldErrors: Record<string, string[]>) {
-    super("Employee validation failed")
-    this.name = "EmployeeValidationError"
-    this.fieldErrors = fieldErrors
-  }
+  return request<Employee>(`/api/employees/${id}`)
 }
 
 export async function createEmployee(payload: EmployeeFormValues): Promise<Employee> {
-  const response = await fetch(`${API_BASE_URL}/api/employees`, {
+  return request<Employee>("/api/employees", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ employee: payload }),
   })
-
-  if (response.status === 422) {
-    const body = await response.json()
-    throw new EmployeeValidationError(body.error?.details ?? {})
-  }
-
-  if (!response.ok) {
-    throw new Error(`Failed to create employee (status ${response.status})`)
-  }
-
-  return response.json() as Promise<Employee>
 }
 
 export async function updateEmployee(id: string | number, payload: Partial<EmployeeFormValues>): Promise<Employee> {
-  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+  return request<Employee>(`/api/employees/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ employee: payload }),
   })
-
-  if (response.status === 422) {
-    const body = await response.json()
-    throw new EmployeeValidationError(body.error?.details ?? {})
-  }
-
-  if (!response.ok) {
-    throw new Error(`Failed to update employee (status ${response.status})`)
-  }
-
-  return response.json() as Promise<Employee>
 }
 
 export async function fetchPaySummary(groupBy: PaySummaryGroupBy): Promise<PaySummary[]> {
   const query = new URLSearchParams({ group_by: groupBy })
-  const response = await fetch(`${API_BASE_URL}/api/insights/pay-summary?${query.toString()}`)
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch pay summary (status ${response.status})`)
-  }
-
-  return response.json() as Promise<PaySummary[]>
+  return request<PaySummary[]>(`/api/insights/pay-summary?${query.toString()}`)
 }
 
 export async function deleteEmployee(id: string | number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/employees/${id}`, {
+  return request<void>(`/api/employees/${id}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
   })
-
-  if (!response.ok) {
-    throw new Error(`Failed to delete employee (status ${response.status})`)
-  }
 }

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 import { EmployeeTable } from "./EmployeeTable"
 import type { Employee } from "./types"
@@ -50,5 +50,27 @@ describe("employee directory table", () => {
     render(<EmployeeTable data={[]} sorting={[]} onSortingChange={vi.fn()} isLoading={true} />)
 
     expect(screen.getByRole("status")).toHaveTextContent(/loading/i)
+  })
+
+  it("keeps native table row semantics even when rows are clickable", () => {
+    render(
+      <EmployeeTable data={employees} sorting={[]} onSortingChange={vi.fn()} isLoading={false} onRowClick={vi.fn()} />,
+    )
+
+    const [, ...dataRows] = screen.getAllByRole("row")
+    for (const row of dataRows) {
+      expect(row).not.toHaveAttribute("role", "button")
+    }
+  })
+
+  it("opens an employee's details when their row is activated", () => {
+    const onRowClick = vi.fn()
+    render(
+      <EmployeeTable data={employees} sorting={[]} onSortingChange={vi.fn()} isLoading={false} onRowClick={onRowClick} />,
+    )
+
+    fireEvent.click(screen.getByRole("button", { name: "View details for Ada Lovelace" }))
+
+    expect(onRowClick).toHaveBeenCalledWith(1)
   })
 })

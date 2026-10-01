@@ -20,8 +20,8 @@ const mockEmployee: Employee = {
 function renderDrawer(
   employeeId: number | null,
   onClose: () => void = vi.fn(),
+  queryClient: QueryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } }),
 ) {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
       <EmployeeDetailDrawer employeeId={employeeId} onClose={onClose} />
@@ -91,6 +91,34 @@ describe("employee detail drawer", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/loading employee details/i)
   })
 
+  it("gives the dialog an accessible name while employee details are loading", () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementationOnce(() =>
+        new Promise(() => {
+          /* never resolves to stay loading */
+        }),
+      ),
+    )
+
+    renderDrawer(1)
+
+    expect(screen.getByRole("dialog", { name: /loading employee details/i })).toBeInTheDocument()
+  })
+
+  it("gives the dialog an accessible name when the employee fails to load", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500, json: async () => ({}) }),
+    )
+
+    renderDrawer(1)
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog", { name: /unable to load employee details/i })).toBeInTheDocument()
+    })
+  })
+
   it("fetches the correct employee by id", async () => {
     renderDrawer(42)
 
@@ -128,7 +156,7 @@ describe("employee detail drawer", () => {
     expect(screen.getByText(/Are you sure you want to remove Ada Lovelace/)).toBeInTheDocument()
   })
 
-  it("does not issue a delete request when the delete dialog is cancelled", async () => {
+  it("cancelling removal keeps the employee", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn()
@@ -169,7 +197,7 @@ describe("employee detail drawer", () => {
     expect(deleteCall).toBeUndefined()
   })
 
-  it("issues a DELETE request when the delete dialog is confirmed", async () => {
+  it("confirming removal deletes the employee", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
         ok: true,
@@ -202,6 +230,34 @@ describe("employee detail drawer", () => {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
       })
+    })
+  })
+
+  it("invalidates pay insights after successfully editing an employee", async () => {
+    const updatedEmployee = { ...mockEmployee, job_title: "Staff Engineer" }
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => mockEmployee })
+        .mockResolvedValueOnce({ ok: true, json: async () => updatedEmployee })
+        .mockResolvedValue({ ok: true, json: async () => updatedEmployee }),
+    )
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries")
+
+    renderDrawer(1, vi.fn(), queryClient)
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Lovelace")).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }))
+
+    const saveButton = await screen.findByRole("button", { name: "Save changes" })
+    fireEvent.click(saveButton)
+
+    await waitFor(() => {
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["pay-summary"] })
     })
   })
 })

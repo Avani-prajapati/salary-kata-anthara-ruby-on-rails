@@ -12,6 +12,18 @@ const SELECT_CLASS_NAME =
 
 const FORM_FIELDS = Object.keys(employeeFormSchema.shape) as (keyof EmployeeFormInput)[]
 
+const FIELD_LABELS: Record<keyof EmployeeFormInput, string> = {
+  first_name: "First name",
+  last_name: "Last name",
+  email: "Email",
+  job_title: "Job title",
+  department: "Department",
+  country: "Country",
+  hire_date: "Hire date",
+  salary_amount: "Salary amount",
+  salary_currency: "Salary currency",
+}
+
 function isFormField(field: string): field is keyof EmployeeFormInput {
   return (FORM_FIELDS as string[]).includes(field)
 }
@@ -45,24 +57,56 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
   }, [serverErrors, setError])
 
   const submitLabel = mode === "create" ? "Add employee" : "Save changes"
+  const invalidFields = FORM_FIELDS.map((field) => ({ field, message: errors[field]?.message })).filter(
+    (entry): entry is { field: keyof EmployeeFormInput; message: string } => Boolean(entry.message),
+  )
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      {invalidFields.length > 0 && (
+        <div role="alert">
+          <p>Please fix the following {invalidFields.length === 1 ? "error" : "errors"}:</p>
+          <ul>
+            {invalidFields.map(({ field, message }) => (
+              <li key={field}>
+                {FIELD_LABELS[field]}: {message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div>
         <Label htmlFor="employee-first-name">First name</Label>
-        <Input id="employee-first-name" aria-describedby="employee-first-name-error" {...register("first_name")} />
+        <Input
+          id="employee-first-name"
+          aria-required="true"
+          aria-describedby="employee-first-name-error"
+          {...register("first_name")}
+        />
         {errors.first_name && <p id="employee-first-name-error">{errors.first_name.message}</p>}
       </div>
 
       <div>
         <Label htmlFor="employee-last-name">Last name</Label>
-        <Input id="employee-last-name" aria-describedby="employee-last-name-error" {...register("last_name")} />
+        <Input
+          id="employee-last-name"
+          aria-required="true"
+          aria-describedby="employee-last-name-error"
+          {...register("last_name")}
+        />
         {errors.last_name && <p id="employee-last-name-error">{errors.last_name.message}</p>}
       </div>
 
       <div>
         <Label htmlFor="employee-email">Email</Label>
-        <Input id="employee-email" type="email" aria-describedby="employee-email-error" {...register("email")} />
+        <Input
+          id="employee-email"
+          type="email"
+          aria-required="true"
+          aria-describedby="employee-email-error"
+          {...register("email")}
+        />
         {errors.email && <p id="employee-email-error">{errors.email.message}</p>}
       </div>
 
@@ -71,6 +115,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
         <select
           id="employee-job-title"
           className={SELECT_CLASS_NAME}
+          aria-required="true"
           aria-describedby="employee-job-title-error"
           defaultValue=""
           {...register("job_title")}
@@ -92,6 +137,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
         <select
           id="employee-department"
           className={SELECT_CLASS_NAME}
+          aria-required="true"
           aria-describedby="employee-department-error"
           defaultValue=""
           {...register("department")}
@@ -113,6 +159,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
         <select
           id="employee-country"
           className={SELECT_CLASS_NAME}
+          aria-required="true"
           aria-describedby="employee-country-error"
           defaultValue=""
           {...register("country")}
@@ -134,6 +181,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
         <Input
           id="employee-hire-date"
           type="date"
+          aria-required="true"
           aria-describedby="employee-hire-date-error"
           {...register("hire_date")}
         />
@@ -146,6 +194,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
           id="employee-salary-amount"
           type="number"
           step="0.01"
+          aria-required="true"
           aria-describedby="employee-salary-amount-error"
           {...register("salary_amount")}
         />
@@ -156,6 +205,7 @@ export function EmployeeForm({ mode, defaultValues, onSubmit, serverErrors }: Em
         <Label htmlFor="employee-salary-currency">Salary currency</Label>
         <Input
           id="employee-salary-currency"
+          aria-required="true"
           aria-describedby="employee-salary-currency-error"
           {...register("salary_currency")}
         />

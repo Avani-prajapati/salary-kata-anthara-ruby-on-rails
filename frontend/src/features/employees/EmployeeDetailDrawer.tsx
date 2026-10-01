@@ -44,6 +44,7 @@ export function EmployeeDetailDrawer({ employeeId, onClose }: EmployeeDetailDraw
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] })
       queryClient.invalidateQueries({ queryKey: ["employee", employeeId] })
+      queryClient.invalidateQueries({ queryKey: ["pay-summary"] })
       setIsEditMode(false)
       setFieldErrors(undefined)
     },
@@ -88,7 +89,10 @@ export function EmployeeDetailDrawer({ employeeId, onClose }: EmployeeDetailDraw
       <Sheet open={isOpen} onOpenChange={handleOpenChange}>
         <SheetContent side="right">
           {isLoading ? (
-            <div role="status">Loading employee details…</div>
+            <>
+              <SheetTitle className="sr-only">Loading employee details</SheetTitle>
+              <div role="status">Loading employee details…</div>
+            </>
           ) : employee ? (
             <>
               <SheetHeader>
@@ -148,7 +152,10 @@ export function EmployeeDetailDrawer({ employeeId, onClose }: EmployeeDetailDraw
               )}
             </>
           ) : (
-            <div role="status">Unable to load employee details</div>
+            <>
+              <SheetTitle className="sr-only">Unable to load employee details</SheetTitle>
+              <div role="status">Unable to load employee details</div>
+            </>
           )}
         </SheetContent>
       </Sheet>

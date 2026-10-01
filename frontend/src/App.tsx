@@ -9,11 +9,13 @@ function App() {
         <NavLink to="/employees">Employees</NavLink>
         <NavLink to="/insights">Insights</NavLink>
       </nav>
-      <Routes>
-        <Route path="/" element={<Navigate to="/employees" replace />} />
-        <Route path="/employees" element={<EmployeesPage />} />
-        <Route path="/insights" element={<InsightsPage />} />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<Navigate to="/employees" replace />} />
+          <Route path="/employees" element={<EmployeesPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
+        </Routes>
+      </main>
     </>
   )
 }

@@ -15,6 +15,12 @@ const GROUP_BY_LABELS: Record<PaySummaryGroupBy, string> = {
   job_title: "Job title",
 }
 
+const DEFAULT_GROUP_BY: PaySummaryGroupBy = "country"
+
+function isPaySummaryGroupBy(value: string): value is PaySummaryGroupBy {
+  return value in GROUP_BY_LABELS
+}
+
 function usePaySummary(groupBy: PaySummaryGroupBy) {
   return useQuery({
     queryKey: ["pay-summary", groupBy],
@@ -45,7 +51,10 @@ export function InsightsPage() {
           id="insights-group-by"
           className={SELECT_CLASS_NAME}
           value={groupBy}
-          onChange={(event) => setGroupBy(event.target.value as PaySummaryGroupBy)}
+          onChange={(event) => {
+            const { value } = event.target
+            setGroupBy(isPaySummaryGroupBy(value) ? value : DEFAULT_GROUP_BY)
+          }}
         >
           {Object.entries(GROUP_BY_LABELS).map(([value, label]) => (
             <option key={value} value={value}>

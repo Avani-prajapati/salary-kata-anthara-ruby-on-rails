@@ -13,6 +13,17 @@ import type { Employee, EmployeeFilters, EmployeeSortColumn } from "./types"
 const EMPTY_EMPLOYEES: Employee[] = []
 const DEFAULT_SORTING: SortingState = [{ id: "last_name", desc: false }]
 const DEFAULT_FILTERS: EmployeeFilters = {}
+const EMPLOYEE_SORT_COLUMNS: EmployeeSortColumn[] = [
+  "last_name",
+  "department",
+  "country",
+  "salary_amount",
+  "hire_date",
+]
+
+function isEmployeeSortColumn(value: string): value is EmployeeSortColumn {
+  return (EMPLOYEE_SORT_COLUMNS as string[]).includes(value)
+}
 
 export function EmployeesPage() {
   const { page, perPage, setPage } = usePagination()
@@ -32,7 +43,7 @@ export function EmployeesPage() {
       fetchEmployees({
         page,
         perPage,
-        sort: activeSort?.id as EmployeeSortColumn | undefined,
+        sort: activeSort && isEmployeeSortColumn(activeSort.id) ? activeSort.id : undefined,
         direction: activeSort?.desc ? "desc" : "asc",
         ...filters,
       }),

@@ -15,6 +15,7 @@ export function AddEmployeeButton() {
     mutationFn: createEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employees"] })
+      queryClient.invalidateQueries({ queryKey: ["pay-summary"] })
       setIsOpen(false)
     },
     onError: (error) => {
