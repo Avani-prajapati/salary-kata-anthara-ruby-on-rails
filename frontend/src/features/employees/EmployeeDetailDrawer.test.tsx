@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { EmployeeDetailDrawer } from "./EmployeeDetailDrawer"
 import type { Employee } from "./types"
 
