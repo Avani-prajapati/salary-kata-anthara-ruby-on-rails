@@ -1,0 +1,21 @@
+one:
+  first_name: Ada
+  last_name: Lovelace
+  email: ada.lovelace.1@acme.example
+  job_title: Software Engineer
+  department: Engineering
+  country: GBR
+  salary_amount: 95000.00
+  salary_currency: GBP
+  hire_date: 2019-05-01
+
+two:
+  first_name: Grace
+  last_name: Hopper
+  email: grace.hopper.2@acme.example
+  job_title: Senior Software Engineer
+  department: Engineering
+  country: USA
+  salary_amount: 120000.00
+  salary_currency: USD
+  hire_date: 2015-03-12
