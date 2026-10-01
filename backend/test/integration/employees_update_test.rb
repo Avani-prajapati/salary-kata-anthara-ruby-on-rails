@@ -16,6 +16,7 @@ class EmployeesUpdateTest < ActionDispatch::IntegrationTest
     assert_equal "95000.0", body["salary_amount"]
     assert_equal new_currency, body["salary_currency"]
     assert_equal employee.id, body["id"]
+    assert_equal employee.email, body["email"]
 
     employee.reload
     assert_equal new_salary, employee.salary_amount

@@ -11,6 +11,7 @@ class EmployeesCreateTest < ActionDispatch::IntegrationTest
 
     assert_equal "Nina", body["first_name"]
     assert_equal "Simone", body["last_name"]
+    assert_equal "nina.simone.create-test@acme.example", body["email"]
     assert_equal "75000.0", body["salary_amount"]
     assert_equal "USD", body["salary_currency"]
     assert Employee.exists?(body["id"])

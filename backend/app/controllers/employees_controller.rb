@@ -6,6 +6,8 @@ class EmployeesController < ApplicationController
     salary_amount salary_currency hire_date
   ].freeze
 
+  EMPLOYEE_DETAIL_FIELDS = (EMPLOYEE_FIELDS + %i[email]).freeze
+
   SCOPED_FILTERS = {
     country: :by_country,
     department: :by_department,
@@ -25,18 +27,18 @@ class EmployeesController < ApplicationController
 
   def show
     employee = Employee.find(params.expect(:id))
-    render json: employee.as_json(only: EMPLOYEE_FIELDS)
+    render json: employee.as_json(only: EMPLOYEE_DETAIL_FIELDS)
   end
 
   def create
     employee = Employee.create!(employee_params)
-    render json: employee.as_json(only: EMPLOYEE_FIELDS), status: :created
+    render json: employee.as_json(only: EMPLOYEE_DETAIL_FIELDS), status: :created
   end
 
   def update
     employee = Employee.find(params.expect(:id))
     employee.update!(employee_params)
-    render json: employee.as_json(only: EMPLOYEE_FIELDS)
+    render json: employee.as_json(only: EMPLOYEE_DETAIL_FIELDS)
   end
 
   def destroy

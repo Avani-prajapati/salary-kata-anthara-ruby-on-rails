@@ -11,12 +11,15 @@ class EmployeesShowTest < ActionDispatch::IntegrationTest
     assert_response :success
     body = JSON.parse(response.body)
 
-    expected_fields = %w[id first_name last_name job_title department country salary_amount salary_currency hire_date]
+    expected_fields = %w[
+      id first_name last_name email job_title department country salary_amount salary_currency hire_date
+    ]
     assert_equal expected_fields.sort, body.keys.sort
 
     assert_equal employee.id, body["id"]
     assert_equal employee.first_name, body["first_name"]
     assert_equal employee.last_name, body["last_name"]
+    assert_equal employee.email, body["email"]
     assert_equal employee.job_title, body["job_title"]
     assert_equal employee.department, body["department"]
     assert_equal employee.country, body["country"]
