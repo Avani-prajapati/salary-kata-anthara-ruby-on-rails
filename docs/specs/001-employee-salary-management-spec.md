@@ -178,11 +178,11 @@ sequenceDiagram
 
 **Acceptance criteria**
 
-- [ ] **5.7.1** `GET /api/insights/pay-summary` returns one row per `(country, currency)` pair actually present in the data — headcount, total payroll cost, and min/avg/median/max current salary — so a country with employees paid in more than one currency yields one row per currency rather than one misleading blended row.
-- [ ] **5.7.2** `GET /api/insights/pay-summary` accepts a `group_by` param (`country` | `department` | `job_title`) and returns the same aggregate shape, still partitioned by currency within each group.
-- [ ] **5.7.3** All aggregates are computed with database-side `GROUP BY`/aggregate functions (never a Ruby-side loop over all 10,000 records); a request test asserts both correctness and that query time on the seeded dataset stays under 500ms.
-- [ ] **5.7.4** Aggregates are never summed or averaged across employees paid in differing currencies without a currency-safe grouping key (ties [4.5](#4-invariants)); covered by a service unit test using fixtures where one country has employees in two currencies.
-- [ ] **5.7.5** The Insights tab renders per-country headcount/cost and the breakdown table, with a visible "amounts shown as paid, not currency-converted" disclosure (ties the accepted-limit ADR at [§9.4](#9-deferred-follow-ups-and-accepted-limits)).
+- [x] **5.7.1** `GET /api/insights/pay-summary` returns one row per `(country, currency)` pair actually present in the data — headcount, total payroll cost, and min/avg/median/max current salary — so a country with employees paid in more than one currency yields one row per currency rather than one misleading blended row.
+- [x] **5.7.2** `GET /api/insights/pay-summary` accepts a `group_by` param (`country` | `department` | `job_title`) and returns the same aggregate shape, still partitioned by currency within each group.
+- [x] **5.7.3** All aggregates are computed with database-side `GROUP BY`/aggregate functions (never a Ruby-side loop over all 10,000 records); a request test asserts both correctness and that query time on the seeded dataset stays under 500ms.
+- [x] **5.7.4** Aggregates are never summed or averaged across employees paid in differing currencies without a currency-safe grouping key (ties [4.5](#4-invariants)); covered by a service unit test using fixtures where one country has employees in two currencies.
+- [x] **5.7.5** The Insights tab renders per-country headcount/cost and the breakdown table, with a visible "amounts shown as paid, not currency-converted" disclosure (ties the accepted-limit ADR at [§9.4](#9-deferred-follow-ups-and-accepted-limits)).
 
 ## 6. NFRs & regulatory compliance
 

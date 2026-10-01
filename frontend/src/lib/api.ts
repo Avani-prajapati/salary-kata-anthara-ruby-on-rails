@@ -1,5 +1,6 @@
 import type { EmployeeListParams, EmployeeListResponse, Employee } from "@/features/employees/types"
 import type { EmployeeFormValues } from "@/features/employees/employeeFormSchema"
+import type { PaySummary, PaySummaryGroupBy } from "@/features/insights/types"
 
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000"
@@ -83,6 +84,17 @@ export async function updateEmployee(id: string | number, payload: Partial<Emplo
   }
 
   return response.json() as Promise<Employee>
+}
+
+export async function fetchPaySummary(groupBy: PaySummaryGroupBy): Promise<PaySummary[]> {
+  const query = new URLSearchParams({ group_by: groupBy })
+  const response = await fetch(`${API_BASE_URL}/api/insights/pay-summary?${query.toString()}`)
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch pay summary (status ${response.status})`)
+  }
+
+  return response.json() as Promise<PaySummary[]>
 }
 
 export async function deleteEmployee(id: string | number): Promise<void> {

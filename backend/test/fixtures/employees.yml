@@ -19,3 +19,58 @@ two:
   salary_amount: 120000.00
   salary_currency: USD
   hire_date: 2015-03-12
+
+canada_paid_in_cad_lowest:
+  first_name: Leslie
+  last_name: Lamport
+  email: leslie.lamport.3@acme.example
+  job_title: Data Scientist
+  department: Product
+  country: CAN
+  salary_amount: 60000.00
+  salary_currency: CAD
+  hire_date: 2018-01-15
+
+canada_paid_in_cad_middle:
+  first_name: Barbara
+  last_name: Liskov
+  email: barbara.liskov.4@acme.example
+  job_title: Data Scientist
+  department: Product
+  country: CAN
+  salary_amount: 70000.00
+  salary_currency: CAD
+  hire_date: 2017-07-01
+
+canada_paid_in_cad_highest:
+  first_name: Donald
+  last_name: Knuth
+  email: donald.knuth.5@acme.example
+  job_title: Data Scientist
+  department: Product
+  country: CAN
+  salary_amount: 95000.00
+  salary_currency: CAD
+  hire_date: 2016-09-20
+
+canada_paid_in_usd_lower:
+  first_name: Margaret
+  last_name: Hamilton
+  email: margaret.hamilton.6@acme.example
+  job_title: Data Scientist
+  department: Product
+  country: CAN
+  salary_amount: 100000.00
+  salary_currency: USD
+  hire_date: 2020-02-10
+
+canada_paid_in_usd_higher:
+  first_name: Edsger
+  last_name: Dijkstra
+  email: edsger.dijkstra.7@acme.example
+  job_title: Data Scientist
+  department: Product
+  country: CAN
+  salary_amount: 130001.00
+  salary_currency: USD
+  hire_date: 2014-11-30

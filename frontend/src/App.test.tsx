@@ -36,9 +36,12 @@ describe("app route shell", () => {
     expect(screen.getByRole("heading", { name: "Employees" })).toBeInTheDocument()
   })
 
-  it("renders the insights placeholder at /insights", () => {
+  it("renders the pay insights page at /insights", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => [] }))
+
     renderAppAt("/insights")
 
-    expect(screen.getByText("Pay insights coming soon.")).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: "Pay insights" })).toBeInTheDocument()
+    expect(await screen.findByText("Amounts shown as paid, not currency-converted.")).toBeInTheDocument()
   })
 })

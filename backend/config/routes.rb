@@ -10,5 +10,6 @@ Rails.application.routes.draw do
 
   scope "api", as: "api" do
     resources :employees, only: [ :index, :show, :create, :update, :destroy ]
+    get "insights/pay-summary", to: "pay_summaries#index", as: :insights_pay_summary
   end
 end

@@ -1,17 +1,20 @@
-import { Navigate, Route, Routes } from "react-router-dom"
+import { Navigate, NavLink, Route, Routes } from "react-router-dom"
 import { EmployeesPage } from "@/features/employees/EmployeesPage"
-
-function InsightsPlaceholder() {
-  return <p>Pay insights coming soon.</p>
-}
+import { InsightsPage } from "@/features/insights/InsightsPage"
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/employees" replace />} />
-      <Route path="/employees" element={<EmployeesPage />} />
-      <Route path="/insights" element={<InsightsPlaceholder />} />
-    </Routes>
+    <>
+      <nav aria-label="Primary">
+        <NavLink to="/employees">Employees</NavLink>
+        <NavLink to="/insights">Insights</NavLink>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Navigate to="/employees" replace />} />
+        <Route path="/employees" element={<EmployeesPage />} />
+        <Route path="/insights" element={<InsightsPage />} />
+      </Routes>
+    </>
   )
 }
 
