@@ -35,6 +35,7 @@
 | 4 | Codebase (this repo) | n/a | 2026-10-01 | Greenfield at session start: only `kata.md` present, no app code, no `docs/specs/`, no `README.md`/`CLAUDE.md`. |
 | 5 | Live spec-writing session with Avani Prajapati | Avani Prajapati | 2026-10-01 | In-session decisions: analytics scope, currency model, auth scope, component library, Rails API mode, pagination model, real-time need, client state strategy, feature layout, and architectural style — each captured via `AskUserQuestion` with a recommended default accepted in every case. |
 | 6 | `ARCHITECTURE.md` (repo root) | n/a | 2026-10-01 | §7 of this spec extracted into the project-wide architecture reference; future specs inherit it directly. |
+| 7 | End-of-spec review (`/anthara:plan-implementer`'s single reviewer + per-pack compliance reviewers) | Fabric agents | 2026-10-01 | Reviewed the full implementation diff against all active packs; findings fixed are reflected in the code, findings deliberately not fixed are recorded in [§9](#9-deferred-follow-ups-and-accepted-limits). |
 
 ## 3. Type ontology
 
@@ -138,9 +139,9 @@ From the detail drawer, the HR Manager edits any field on an existing employee, 
 
 **Acceptance criteria**
 
-- [ ] **5.5.1** `PATCH /api/employees/:id` updates permitted fields via strong parameters (`params.expect`).
-- [ ] **5.5.2** Changing `salary_amount` or `salary_currency` re-validates non-negativity and a well-formed ISO 4217 currency code before saving.
-- [ ] **5.5.3** An invalid update returns `422` with field-level errors; updating a removed/non-existent employee returns `404`; on success the UI reflects the server's saved values (not an optimistic client-side guess).
+- [x] **5.5.1** `PATCH /api/employees/:id` updates permitted fields via strong parameters (`params.expect`).
+- [x] **5.5.2** Changing `salary_amount` or `salary_currency` re-validates non-negativity and a well-formed ISO 4217 currency code before saving.
+- [x] **5.5.3** An invalid update returns `422` with field-level errors; updating a removed/non-existent employee returns `404`; on success the UI reflects the server's saved values (not an optimistic client-side guess).
 
 ### 5.6 Remove an employee record
 
@@ -322,8 +323,15 @@ None. Every unknown surfaced during elicitation (analytics depth, currency handl
 
 **9.5 Country and department are validated attributes, not managed entities — accepted.** `country` and `department` are indexed string columns on `Employee`, validated against a fixed list at the application layer, rather than their own CRUD-managed reference tables. The rejected alternative — full `Country`/`Department` management screens — was set aside because the kata never asks for reference-data administration, and introducing it would add two more CRUD surfaces unrelated to the stated salary-management problem. Sources: [1].
 
+**9.6 No CI pipeline or mutation testing — accepted.** The end-of-spec review flagged that `backend/.github/workflows/ci.yml` (Rails' own generator default) runs backend lint/security scans but nothing exercises the frontend automatically, and no mutation-testing step exists for either side. The rejected alternative — standing up a full CI matrix (frontend lint/typecheck/test job, plus `mutant`/`stryker-mutator`) — was set aside because the kata asks for tests and code quality, not pipeline infrastructure, and building CI for a repo with no hosting target ([§9.1](#9-deferred-follow-ups-and-accepted-limits)) has limited payoff here; tests are run manually at each slice boundary instead. Revisit if this repo is ever handed to a team working in parallel. Sources: [7].
+
+**9.7 Frontend API responses are trusted by type, not runtime-validated — accepted.** `frontend/src/lib/api.ts` casts parsed JSON to its TypeScript response types without a runtime schema check (e.g. zod) on the way in — only outgoing form payloads are zod-validated (`employeeFormSchema`). The rejected alternative — validating every response shape at the API-client boundary — was set aside because the frontend and backend are developed and versioned together in this repo (no independent API consumer, no contract-drift risk from a separate team), so the realistic failure mode a runtime check would catch (a backend response shape change) is already caught by the backend's own request tests and by `tsc` if the shared type is updated. Sources: [7].
+
+**9.8 Cosmetic review findings left as-is — accepted.** A handful of LOW-severity, purely stylistic findings from the end-of-spec review were intentionally not acted on: wrapping prop types in `Readonly<...>` across every component, extracting the detail drawer's repeated label/value rows and the repeated country/department/job-title `<select>` markup (in `FilterBar` and `EmployeeForm`) into shared components, and rewrapping one commit's (`257f1d0`) message body to 72 columns. None affect behavior, tests, or the standards the spec committed to; the rejected alternative (fixing all of them) was set aside as polish with a time cost disproportionate to its value for this submission. Sources: [7].
+
 ---
 
 ## Changelog
 
 - 2026-10-01 — Avani Prajapati (via Anthara spec-writer) — Initial spec from the kata.md brief and in-session elicitation [1, 5].
+- 2026-10-01 — Avani Prajapati (via Anthara plan-implementer's end-of-spec review) — All 7 slices built and reviewed; 2 HIGH and several MED findings fixed in code, remainder recorded as [§9.6-9.8](#9-deferred-follow-ups-and-accepted-limits) [7].
