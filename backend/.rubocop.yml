@@ -1,8 +1,46 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+# The omakase base disables the Rails, Metrics, and most Lint/Style
+# departments wholesale. Re-enable the specific cops this project commits to
+# (spec §6.3) on top of the omakase base, rather than relying on department
+# defaults the base turns off.
+AllCops:
+  # db/schema.rb is Rails-generated and regenerated on every migration; it is
+  # never hand-edited, so style cops (e.g. frozen string literal) don't apply.
+  Exclude:
+    - "db/schema.rb"
+
+Rails/FindEach:
+  Enabled: true
+Rails/SkipsModelValidations:
+  Enabled: true
+Rails/UniqueValidationWithoutIndex:
+  Enabled: true
+Rails/StrongParametersExpect:
+  Enabled: true
+Rails/NotNullColumn:
+  Enabled: true
+Rails/HasManyOrHasOneDependent:
+  Enabled: true
+Rails/Output:
+  Enabled: true
+Rails/OutputSafety:
+  Enabled: true
+Rails/WhereExists:
+  Enabled: true
+Rails/UniqBeforePluck:
+  Enabled: true
+
+Metrics/MethodLength:
+  Enabled: true
+Metrics/AbcSize:
+  Enabled: true
+
+Lint/SuppressedException:
+  Enabled: true
+Lint/UselessAssignment:
+  Enabled: true
+
+Style/FrozenStringLiteralComment:
+  Enabled: true

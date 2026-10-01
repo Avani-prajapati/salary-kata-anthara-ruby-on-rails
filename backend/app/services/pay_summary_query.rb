@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaySummaryQuery
   GROUP_BY_COLUMNS = %w[country department job_title].freeze
   DEFAULT_GROUP_BY = "country"
@@ -22,23 +24,33 @@ class PaySummaryQuery
   def call
     medians = medians_by_group_and_currency
 
-    aggregate_rows.map do |group_key, currency, headcount, total_cost, min_salary, avg_salary, max_salary|
-      PaySummary.new(
-        group_key: group_key,
-        currency: currency,
-        headcount: headcount,
-        total_cost: to_money(total_cost),
-        min_salary: to_money(min_salary),
-        avg_salary: to_money(avg_salary),
-        median_salary: medians.fetch([ group_key, currency ]),
-        max_salary: to_money(max_salary)
-      )
-    end
+    aggregate_rows.map { |row| build_summary(row, medians) }
   end
 
   private
 
   attr_reader :group_column
+
+  def build_summary(row, medians)
+    group_key, currency, headcount, total_cost, min_salary, avg_salary, max_salary = row
+
+    PaySummary.new(
+      group_key: group_key,
+      currency: currency,
+      headcount: headcount,
+      median_salary: medians.fetch([ group_key, currency ]),
+      **money_fields(total_cost, min_salary, avg_salary, max_salary)
+    )
+  end
+
+  def money_fields(total_cost, min_salary, avg_salary, max_salary)
+    {
+      total_cost: to_money(total_cost),
+      min_salary: to_money(min_salary),
+      avg_salary: to_money(avg_salary),
+      max_salary: to_money(max_salary)
+    }
+  end
 
   def aggregate_rows
     salary = Employee.arel_table[:salary_amount]

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class EmployeesCreateTest < ActionDispatch::IntegrationTest
@@ -55,17 +57,19 @@ class EmployeesCreateTest < ActionDispatch::IntegrationTest
 
   private
 
+  DEFAULT_EMPLOYEE_ATTRIBUTES = {
+    first_name: "Nina",
+    last_name: "Simone",
+    email: "nina.simone.create-test@acme.example",
+    job_title: Employee::JOB_TITLES.first,
+    department: Employee::DEPARTMENTS.first,
+    country: Employee::SUPPORTED_COUNTRIES.first,
+    hire_date: "2023-02-14",
+    salary_amount: 75_000,
+    salary_currency: "USD"
+  }.freeze
+
   def employee_attributes(overrides = {})
-    {
-      first_name: "Nina",
-      last_name: "Simone",
-      email: "nina.simone.create-test@acme.example",
-      job_title: Employee::JOB_TITLES.first,
-      department: Employee::DEPARTMENTS.first,
-      country: Employee::SUPPORTED_COUNTRIES.first,
-      hire_date: "2023-02-14",
-      salary_amount: 75_000,
-      salary_currency: "USD"
-    }.merge(overrides)
+    DEFAULT_EMPLOYEE_ATTRIBUTES.merge(overrides)
   end
 end

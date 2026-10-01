@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class PaginatableTest < ActiveSupport::TestCase
@@ -29,17 +31,20 @@ class PaginatableTest < ActiveSupport::TestCase
 
   private
 
+  DEFAULT_EMPLOYEE_ATTRIBUTES = {
+    job_title: Employee::JOB_TITLES.first,
+    department: Employee::DEPARTMENTS.first,
+    country: Employee::SUPPORTED_COUNTRIES.first,
+    salary_amount: 50_000,
+    salary_currency: "USD",
+    hire_date: Date.new(2021, 1, 1)
+  }.freeze
+
   def employee_attributes(index)
-    {
+    DEFAULT_EMPLOYEE_ATTRIBUTES.merge(
       first_name: "First#{index}",
       last_name: "Last#{index}",
-      email: "first#{index}.last#{index}.#{index}@acme.example",
-      job_title: Employee::JOB_TITLES.first,
-      department: Employee::DEPARTMENTS.first,
-      country: Employee::SUPPORTED_COUNTRIES.first,
-      salary_amount: 50_000,
-      salary_currency: "USD",
-      hire_date: Date.new(2021, 1, 1)
-    }
+      email: "first#{index}.last#{index}.#{index}@acme.example"
+    )
   end
 end

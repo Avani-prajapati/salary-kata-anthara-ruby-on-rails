@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class EmployeeTest < ActiveSupport::TestCase
@@ -79,17 +81,19 @@ class EmployeeTest < ActiveSupport::TestCase
 
   private
 
+  VALID_ATTRIBUTES = {
+    first_name: "Jordan",
+    last_name: "Rivera",
+    email: "jordan.rivera.999@acme.example",
+    job_title: "Software Engineer",
+    department: "Engineering",
+    country: "USA",
+    salary_amount: 85_000.00,
+    salary_currency: "USD",
+    hire_date: Date.new(2022, 1, 10)
+  }.freeze
+
   def valid_attributes
-    {
-      first_name: "Jordan",
-      last_name: "Rivera",
-      email: "jordan.rivera.999@acme.example",
-      job_title: "Software Engineer",
-      department: "Engineering",
-      country: "USA",
-      salary_amount: 85_000.00,
-      salary_currency: "USD",
-      hire_date: Date.new(2022, 1, 10)
-    }
+    VALID_ATTRIBUTES
   end
 end

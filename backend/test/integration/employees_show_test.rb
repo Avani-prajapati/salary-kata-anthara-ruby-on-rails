@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class EmployeesShowTest < ActionDispatch::IntegrationTest
@@ -35,17 +37,19 @@ class EmployeesShowTest < ActionDispatch::IntegrationTest
 
   private
 
+  EMPLOYEE_ATTRIBUTES = {
+    first_name: "John",
+    last_name: "Doe",
+    email: "john.doe.test@acme.example",
+    job_title: Employee::JOB_TITLES.first,
+    department: Employee::DEPARTMENTS.first,
+    country: Employee::SUPPORTED_COUNTRIES.first,
+    salary_amount: 75_000,
+    salary_currency: "USD",
+    hire_date: Date.new(2021, 1, 1)
+  }.freeze
+
   def employee_attributes
-    {
-      first_name: "John",
-      last_name: "Doe",
-      email: "john.doe.test@acme.example",
-      job_title: Employee::JOB_TITLES.first,
-      department: Employee::DEPARTMENTS.first,
-      country: Employee::SUPPORTED_COUNTRIES.first,
-      salary_amount: 75_000,
-      salary_currency: "USD",
-      hire_date: Date.new(2021, 1, 1)
-    }
+    EMPLOYEE_ATTRIBUTES
   end
 end

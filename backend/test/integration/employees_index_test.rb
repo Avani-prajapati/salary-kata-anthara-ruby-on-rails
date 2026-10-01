@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class EmployeesIndexTest < ActionDispatch::IntegrationTest
@@ -220,16 +222,21 @@ class EmployeesIndexTest < ActionDispatch::IntegrationTest
   end
 
   def employee_attributes(index)
-    {
+    default_employee_attributes.merge(
       first_name: "First#{index}",
       last_name: "Last#{index}",
       email: "first#{index}.last#{index}.#{index}@acme.example",
+      salary_amount: 50_000 + index,
+      hire_date: Date.new(2021, 1, 1) + index
+    )
+  end
+
+  def default_employee_attributes
+    {
       job_title: Employee::JOB_TITLES.first,
       department: Employee::DEPARTMENTS.first,
       country: Employee::SUPPORTED_COUNTRIES.first,
-      salary_amount: 50_000 + index,
-      salary_currency: "USD",
-      hire_date: Date.new(2021, 1, 1) + index
+      salary_currency: "USD"
     }
   end
 

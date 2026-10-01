@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaySummariesController < ApplicationController
   def index
     render json: PaySummaryQuery.call(group_by: group_by_param).map(&:to_h)

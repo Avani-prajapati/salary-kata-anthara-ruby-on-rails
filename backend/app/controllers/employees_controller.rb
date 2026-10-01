@@ -1,8 +1,17 @@
+# frozen_string_literal: true
+
 class EmployeesController < ApplicationController
   EMPLOYEE_FIELDS = %i[
     id first_name last_name job_title department country
     salary_amount salary_currency hire_date
   ].freeze
+
+  SCOPED_FILTERS = {
+    country: :by_country,
+    department: :by_department,
+    job_title: :by_job_title,
+    q: :search_by_name_or_email
+  }.freeze
 
   def index
     matching_employees = filtered_employees.order_by_sort(sort_params[:sort], sort_params[:direction])
@@ -15,7 +24,7 @@ class EmployeesController < ApplicationController
   end
 
   def show
-    employee = Employee.find(params[:id])
+    employee = Employee.find(params.expect(:id))
     render json: employee.as_json(only: EMPLOYEE_FIELDS)
   end
 
@@ -25,13 +34,13 @@ class EmployeesController < ApplicationController
   end
 
   def update
-    employee = Employee.find(params[:id])
+    employee = Employee.find(params.expect(:id))
     employee.update!(employee_params)
     render json: employee.as_json(only: EMPLOYEE_FIELDS)
   end
 
   def destroy
-    employee = Employee.find(params[:id])
+    employee = Employee.find(params.expect(:id))
     employee.destroy!
     head :no_content
   end
@@ -45,13 +54,20 @@ class EmployeesController < ApplicationController
   end
 
   def filtered_employees
-    scope = Employee.all
-    scope = scope.by_country(filter_params[:country]) if filter_params[:country]
-    scope = scope.by_department(filter_params[:department]) if filter_params[:department]
-    scope = scope.by_job_title(filter_params[:job_title]) if filter_params[:job_title]
-    scope = scope.salary_between(filter_params[:min_salary], filter_params[:max_salary]) if filter_params[:min_salary] || filter_params[:max_salary]
-    scope = scope.search_by_name_or_email(filter_params[:q]) if filter_params[:q]
-    scope
+    apply_salary_range_filter(apply_scoped_filters(Employee.all))
+  end
+
+  def apply_scoped_filters(scope)
+    SCOPED_FILTERS.reduce(scope) do |relation, (filter_key, scope_method)|
+      value = filter_params[filter_key]
+      value ? relation.public_send(scope_method, value) : relation
+    end
+  end
+
+  def apply_salary_range_filter(scope)
+    return scope unless filter_params[:min_salary] || filter_params[:max_salary]
+
+    scope.salary_between(filter_params[:min_salary], filter_params[:max_salary])
   end
 
   def filter_params

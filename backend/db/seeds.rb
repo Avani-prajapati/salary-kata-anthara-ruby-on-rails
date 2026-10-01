@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "faker"
 
 COUNTRY_DEFAULT_CURRENCIES = {
@@ -101,25 +103,34 @@ def currency_for(country)
   COUNTRY_DEFAULT_CURRENCIES.fetch(country)
 end
 
-def build_employee_row(index, timestamp)
+def random_identity(index)
   first_name = Faker::Name.first_name
   last_name = Faker::Name.last_name
+  email = "#{email_local_part(first_name)}.#{email_local_part(last_name)}.#{index}@acme.example"
+
+  { first_name: first_name, last_name: last_name, email: email }
+end
+
+def job_fields(job_title)
+  { job_title: job_title, salary_amount: rand(JOB_TITLE_SALARY_RANGES.fetch(job_title)) }
+end
+
+def timestamp_fields(timestamp)
+  { created_at: timestamp, updated_at: timestamp }
+end
+
+def build_employee_row(index, timestamp)
   country = weighted_sample(COUNTRY_WEIGHTS)
   job_title = weighted_sample(JOB_TITLE_WEIGHTS)
 
-  {
-    first_name: first_name,
-    last_name: last_name,
-    email: "#{email_local_part(first_name)}.#{email_local_part(last_name)}.#{index}@acme.example",
-    job_title: job_title,
+  random_identity(index).merge(
     department: weighted_sample(DEPARTMENT_WEIGHTS),
     country: country,
-    salary_amount: rand(JOB_TITLE_SALARY_RANGES.fetch(job_title)),
     salary_currency: currency_for(country),
     hire_date: Faker::Date.between(from: 15.years.ago, to: Date.current),
-    created_at: timestamp,
-    updated_at: timestamp
-  }
+    **job_fields(job_title),
+    **timestamp_fields(timestamp)
+  )
 end
 
 def seed_employees(total: 10_000, batch_size: 1_000)
@@ -131,7 +142,11 @@ def seed_employees(total: 10_000, batch_size: 1_000)
     offset = batch_index * batch_size
     rows = Array.new(batch_size) { |i| build_employee_row(offset + i, timestamp) }
 
+    # Rows are built from the model's own constraints above; insert_all is required
+    # for batch-insert performance at 10k rows (see CLAUDE.md "Seeding").
+    # rubocop:disable Rails/SkipsModelValidations
     Employee.insert_all(rows)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "test_helper"
 
 class PaySummariesIndexTest < ActionDispatch::IntegrationTest
@@ -78,27 +80,45 @@ class PaySummariesIndexTest < ActionDispatch::IntegrationTest
 
   def seed_full_dataset
     timestamp = Time.current
+    rows = Array.new(SEEDED_DATASET_SIZE) { |index| seeded_employee_row(index, timestamp) }
 
-    Array.new(SEEDED_DATASET_SIZE) { |index| seeded_employee_row(index, timestamp) }
-      .each_slice(1_000) { |rows| Employee.insert_all(rows) }
+    # Rows are built from the model's own constraints above; insert_all is required
+    # for batch-insert performance at 10k rows (see CLAUDE.md "Seeding").
+    # rubocop:disable Rails/SkipsModelValidations
+    rows.each_slice(1_000) { |batch| Employee.insert_all(batch) }
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def seeded_employee_row(index, timestamp)
     country = Employee::SUPPORTED_COUNTRIES[index % Employee::SUPPORTED_COUNTRIES.size]
-    currency = (index % 33).zero? ? "USD" : CURRENCIES_BY_COUNTRY.fetch(country)
 
+    seeded_identity(index).merge(
+      country: country,
+      created_at: timestamp,
+      updated_at: timestamp,
+      **seeded_category_fields(index, country)
+    )
+  end
+
+  def seeded_category_fields(index, country)
+    {
+      job_title: Employee::JOB_TITLES[index % Employee::JOB_TITLES.size],
+      department: Employee::DEPARTMENTS[index % Employee::DEPARTMENTS.size],
+      salary_amount: 35_000 + ((index * 7_919) % 145_000),
+      salary_currency: seeded_currency(index, country),
+      hire_date: Date.new(2010, 1, 1) + (index % 5_000)
+    }
+  end
+
+  def seeded_currency(index, country)
+    (index % 33).zero? ? "USD" : CURRENCIES_BY_COUNTRY.fetch(country)
+  end
+
+  def seeded_identity(index)
     {
       first_name: "Seeded#{index}",
       last_name: "Employee#{index}",
-      email: "seeded.employee.#{index}@acme.example",
-      job_title: Employee::JOB_TITLES[index % Employee::JOB_TITLES.size],
-      department: Employee::DEPARTMENTS[index % Employee::DEPARTMENTS.size],
-      country: country,
-      salary_amount: 35_000 + ((index * 7_919) % 145_000),
-      salary_currency: currency,
-      hire_date: Date.new(2010, 1, 1) + (index % 5_000),
-      created_at: timestamp,
-      updated_at: timestamp
+      email: "seeded.employee.#{index}@acme.example"
     }
   end
 end
