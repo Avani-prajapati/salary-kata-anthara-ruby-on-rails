@@ -125,10 +125,10 @@ From the Employees tab, the HR Manager opens an "Add employee" form and creates 
 
 **Acceptance criteria**
 
-- [ ] **5.4.1** `POST /api/employees` accepts `first_name, last_name, email, job_title, department, country, hire_date, salary_amount, salary_currency` via strong parameters (`params.expect`, Rails 8) and creates the record.
-- [ ] **5.4.2** A missing required field or an invalid salary (negative or non-numeric) returns `422` with per-field validation messages; the form surfaces them inline next to the offending field.
-- [ ] **5.4.3** A duplicate email returns `422`, backed by a database unique index (not validation alone) — ties [4.1](#4-invariants); Rails Backend Standards — back every uniqueness validation with a unique index.
-- [ ] **5.4.4** On success, the new employee appears in the directory ([5.1](#51-browse-the-paginated-employee-directory)) without a full page reload.
+- [x] **5.4.1** `POST /api/employees` accepts `first_name, last_name, email, job_title, department, country, hire_date, salary_amount, salary_currency` via strong parameters (`params.expect`, Rails 8) and creates the record.
+- [x] **5.4.2** A missing required field or an invalid salary (negative or non-numeric) returns `422` with per-field validation messages; the form surfaces them inline next to the offending field.
+- [x] **5.4.3** A duplicate email returns `422`, backed by a database unique index (not validation alone) — ties [4.1](#4-invariants); Rails Backend Standards — back every uniqueness validation with a unique index.
+- [x] **5.4.4** On success, the new employee appears in the directory ([5.1](#51-browse-the-paginated-employee-directory)) without a full page reload.
 
 ### 5.5 Edit an employee's profile and salary
 

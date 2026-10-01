@@ -1,4 +1,5 @@
 import type { EmployeeListParams, EmployeeListResponse, Employee } from "@/features/employees/types"
+import type { EmployeeFormValues } from "@/features/employees/employeeFormSchema"
 
 export const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000"
@@ -31,6 +32,35 @@ export async function fetchEmployee(id: string | number): Promise<Employee> {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch employee (status ${response.status})`)
+  }
+
+  return response.json() as Promise<Employee>
+}
+
+export class EmployeeValidationError extends Error {
+  fieldErrors: Record<string, string[]>
+
+  constructor(fieldErrors: Record<string, string[]>) {
+    super("Employee validation failed")
+    this.name = "EmployeeValidationError"
+    this.fieldErrors = fieldErrors
+  }
+}
+
+export async function createEmployee(payload: EmployeeFormValues): Promise<Employee> {
+  const response = await fetch(`${API_BASE_URL}/api/employees`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ employee: payload }),
+  })
+
+  if (response.status === 422) {
+    const body = await response.json()
+    throw new EmployeeValidationError(body.error?.details ?? {})
+  }
+
+  if (!response.ok) {
+    throw new Error(`Failed to create employee (status ${response.status})`)
   }
 
   return response.json() as Promise<Employee>

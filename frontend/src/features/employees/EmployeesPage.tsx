@@ -3,6 +3,7 @@ import { useState } from "react"
 import type { SortingState } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { fetchEmployees } from "@/lib/api"
+import { AddEmployeeButton } from "./AddEmployeeButton"
 import { EmployeeTable } from "./EmployeeTable"
 import { EmployeeDetailDrawer } from "./EmployeeDetailDrawer"
 import { FilterBar } from "./FilterBar"
@@ -43,6 +44,7 @@ export function EmployeesPage() {
   return (
     <section>
       <h1>Employees</h1>
+      <AddEmployeeButton />
       <FilterBar filters={filters} onFilterChange={handleFilterChange} />
       <EmployeeTable
         data={employees}

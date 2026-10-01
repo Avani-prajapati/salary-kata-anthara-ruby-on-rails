@@ -19,7 +19,18 @@ class EmployeesController < ApplicationController
     render json: employee.as_json(only: EMPLOYEE_FIELDS)
   end
 
+  def create
+    employee = Employee.create!(employee_params)
+    render json: employee.as_json(only: EMPLOYEE_FIELDS), status: :created
+  end
+
   private
+
+  def employee_params
+    params.expect(
+      employee: %i[first_name last_name email job_title department country hire_date salary_amount salary_currency]
+    )
+  end
 
   def filtered_employees
     scope = Employee.all
